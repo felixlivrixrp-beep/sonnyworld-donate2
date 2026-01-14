@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SonnyWorld | Официальный донат</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root { --orange: #FF6B35; --green: #2A9D8F; --dark: #1a1a2e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        /* Шапка */
+        .header { background: rgba(26,26,46,0.95); padding: 20px 0; border-bottom: 3px solid var(--orange); position: sticky; top: 0; z-index: 100; }
+        .header .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; font-size: 28px; font-weight: 800; gap: 15px; }
+        .logo i { color: var(--orange); font-size: 32px; }
+        .logo span { background: linear-gradient(45deg, #FF6B35, #FF9E6D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .server-ip { background: rgba(255,107,53,0.2); padding: 10px 25px; border-radius: 25px; border: 1px solid var(--orange); font-family: monospace; font-weight: bold; font-size: 18px; }
+        
+        /* Герой */
+        .hero { text-align: center; padding: 80px 0; background: linear-gradient(rgba(26,26,46,0.9), rgba(26,26,46,0.9)), url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=2000'); background-size: cover; }
+        .hero h1 { font-size: 48px; margin-bottom: 20px; }
+        .hero .subtitle { font-size: 20px; color: #aaa; max-width: 600px; margin: 0 auto 40px; }
+        .stats { display: flex; justify-content: center; gap: 50px; margin-top: 50px; }
+        .stat { text-align: center; }
+        .stat i { font-size: 40px; color: var(--orange); margin-bottom: 10px; }
+        .stat .number { display: block; font-size: 36px; font-weight: bold; }
+        .stat .label { color: #aaa; font-size: 14px; }
+        
+        /* Карточки */
+        .donates { padding: 80px 0; }
+        .donates h2 { text-align: center; font-size: 36px; margin-bottom: 50px; }
+        .donate-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+        .donate-card { background: rgba(255,255,255,0.05); border-radius: 20px; padding: 30px; border: 2px solid transparent; transition: 0.3s; position: relative; }
+        .donate-card:hover { transform: translateY(-10px); border-color: var(--orange); box-shadow: 0 15px 30px rgba(255,107,53,0.2); }
+        .donate-card.free { border-color: var(--green); }
+        .badge { position: absolute; top: 15px; right: -30px; background: var(--orange); color: white; padding: 5px 30px; transform: rotate(45deg); font-size: 12px; font-weight: bold; }
+        .donate-card.free .badge { background: var(--green); }
+        .card-title { font-size: 28px; margin-bottom: 15px; text-align: center; }
+        .price { font-size: 42px; font-weight: 800; color: var(--orange); text-align: center; margin: 20px 0; }
+        .donate-card.free .price { color: var(--green); }
+        .features { list-style: none; margin: 25px 0; }
+        .features li { padding: 10px 0; display: flex; align-items: center; gap: 10px; }
+        .features i { color: var(--green); }
+        .btn { display: block; width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .btn-buy { background: linear-gradient(45deg, var(--orange), #FF9E6D); color: white; }
+        .btn-buy:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(255,107,53,0.4); }
+        .btn-free { background: rgba(42,157,143,0.2); color: var(--green); border: 2px solid var(--green); }
+        .btn-free:hover { background: rgba(42,157,143,0.3); }
+        
+        /* Форма */
+        .payment-section { padding: 60px 0; }
+        .payment-form { max-width: 600px; margin: 0 auto; background: rgba(255,255,255,0.05); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .payment-form h2 { text-align: center; margin-bottom: 30px; }
+        .selected-donate { background: rgba(255,107,53,0.1); padding: 20px; border-radius: 10px; margin-bottom: 30px; border-left: 4px solid var(--orange); }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; margin-bottom: 10px; color: #aaa; }
+        .form-group input { width: 100%; padding: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: white; font-size: 16px; }
+        .payment-methods { display: flex; flex-direction: column; gap: 15px; margin: 20px 0; }
+        .payment-method { display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid rgba(255,255,255,0.2); border-radius: 10px; cursor: pointer; }
+        .payment-method:hover { border-color: var(--orange); }
+        .terms { display: flex; align-items: center; gap: 10px; margin: 25px 0; }
+        .btn-pay { width: 100%; padding: 18px; background: linear-gradient(45deg, var(--green), #34c9a8); color: white; border: none; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; }
+        
+        /* Футер */
+        .footer { background: rgba(26,26,46,0.95); padding: 40px 0; margin-top: 60px; border-top: 3px solid var(--orange); }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; }
+        
+        /* Модалка */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 40px; border-radius: 20px; max-width: 500px; width: 90%; border: 2px solid var(--orange); position: relative; }
+        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 28px; color: white; cursor: pointer; }
+        
+        @media (max-width: 768px) {
+            .donate-grid { grid-template-columns: 1fr; }
+            .header .container { flex-direction: column; gap: 20px; }
+            .stats { flex-direction: column; gap: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Уведомление -->
+    <div class="notification" id="notification" style="display: none; position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 15px 25px; border-radius: 10px; z-index: 1000;">
+        <i class="fas fa-check-circle"></i> <span>Донат успешно куплен!</span>
+    </div>
+
+    <!-- Шапка -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-crown"></i>
+                <span>SonnyWorld</span>
+            </div>
+            <div class="server-ip">IP: Sonny_World.aternos.me</div>
+        </div>
+    </header>
+
+    <!-- Главная -->
+    <section class="hero">
+        <div class="container">
+            <h1>Донат для SonnyWorld</h1>
+            <p class="subtitle">Поддержи сервер и получи уникальные привилегии! Выдача вручную администратором.</p>
+            <div class="stats">
+                <div class="stat">
+                    <i class="fas fa-users"></i>
+                    <span class="number" id="onlineCount">0</span>
+                    <span class="label">онлайн</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="number" id="totalDonates">0</span>
+                    <span class="label">куплено</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-bolt"></i>
+                    <span class="number">99.8%</span>
+                    <span class="label">аптайм</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Привилегии -->
+    <section class="donates">
+        <div class="container">
+            <h2>Выбери привилегию</h2>
+            <div class="donate-grid">
+                <!-- D.Helper -->
+                <div class="donate-card free">
+                    <div class="badge">БЕСПЛАТНО</div>
+                    <h3 class="card-title">D.Helper</h3>
+                    <div class="price">0 ₽</div>
+                    <ul class="features">
+                        <li><i class="fas fa-check"></i> Префикс [D.Helper]</li>
+                        <li><i class="fas fa-check"></i> Цветной ник</li>
+                        <li><i class="fas fa-check"></i> Доступ к /hat</li>
+                        <li><i class="fas fa-check"></i> 2 слота варпов</li>
+                    </ul>
+                    <button class="btn btn-free" onclick="showFreeModal()">
+                        <i class="fas fa-gift"></i> Получить бесплатно
+                    </button>
+                </div>
+
+                <!-- Helper -->
+                <div class="donate-card">
+                    <div class="badge">ТОП</div>
+                    <h3 class="card-title">Helper</h3>
+                    <div class="price">1 ₽</div>
+                    <ul class="features">
+                        <li><i class="fas fa-check"></i> Все из D.Helper</li>
+                        <li><i class="fas fa-check"></i> Префикс [Helper]</li>
+                        <li><i class="fas fa-check"></i> Команда /tpa</li>
+                        <li><i class="fas fa-check"></i> Полёт в лобби</li>
+                        <li><i class="fas fa-check"></i> 5 слотов варпов</li>
+                    </ul>
+                    <button class="btn btn-buy" onclick="selectDonate('Helper', 1)">
+                        <i class="fas fa-shopping-cart"></i> Купить за 1 ₽
+                    </button>
+                </div>
+
+                <!-- Moder -->
+                <div class="donate-card">
+                    <h3 class="card-title">Moder</h3>
+                    <div class="price">299 ₽</div>
+                    <ul class="features">
+                        <li><i class="fas fa-check"></i> Все из Helper</li>
+                        <li><i class="fas fa-check"></i> Префикс [Moder]</li>
+                        <li><i class="fas fa-check"></i> Модераторские команды</li>
+                        <li><i class="fas fa-check"></i> Невидимость в лобби</li>
+                        <li><i class="fas fa-check"></i> 15 слотов варпов</li>
+                    </ul>
+                    <button class="btn btn-buy" onclick="selectDonate('Moder', 299)">
+                        <i class="fas fa-shopping-cart"></i> Купить за 299 ₽
+                    </button>
+                </div>
+
+                <!-- Ml.Admin -->
+                <div class="donate-card">
+                    <h3 class="card-title">Ml.Admin</h3>
+                    <div class="price">599 ₽</div>
+                    <ul class="features">
+                        <li><i class="fas fa-check"></i> Все из Moder</li>
+                        <li><i class="fas fa-check"></i> Префикс [Ml.Admin]</li>
+                        <li><i class="fas fa-check"></i> Админ команды</li>
+                        <li><i class="fas fa-check"></i> Creative мир</li>
+                        <li><i class="fas fa-check"></i> 30 слотов варпов</li>
+                    </ul>
+                    <button class="btn btn-buy" onclick="selectDonate('Ml.Admin', 599)">
+                        <i class="fas fa-shopping-cart"></i> Купить за 599 ₽
+                    </button>
+                </div>
+
+                <!-- Admin -->
+                <div class="donate-card">
+                    <div class="badge" style="background: #E76F51;">ВЫГОДА</div>
+                    <h3 class="card-title">Admin</h3>
+                    <div class="price">999 ₽</div>
+                    <ul class="features">
+                        <li><i class="fas fa-check"></i> Все из Ml.Admin</li>
+                        <li><i class="fas fa-check"></i> Полные админ права</li>
+                        <li><i class="fas fa-check"></i> Префикс [Admin]</li>
+                        <li><i class="fas fa-check"></i> Личный остров</li>
+                        <li><i class="fas fa-check"></i> Неограниченные варпы</li>
+                        <li><i class="fas fa-check"></i> Золотая метка в табе</li>
+                    </ul>
+                    <button class="btn btn-buy" onclick="selectDonate('Admin', 999)">
+                        <i class="fas fa-crown"></i> Купить за 999 ₽
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Форма оплаты -->
+    <section class="payment-section">
+        <div class="container">
+            <div class="payment-form" id="paymentForm">
+                <h2><i class="fas fa-credit-card"></i> Оформление доната</h2>
+                
+                <div class="selected-donate" id="selectedDonateInfo">
+                    <h3>Выберите привилегию</h3>
+                    <p>Нажмите на кнопку "Купить" выше</p>
+                </div>
+
+                <form id="donateForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Никнейм в игре</label>
+                        <input type="text" id="nickname" placeholder="Например: veolte_ofical1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email для чека</label>
+                        <input type="email" id="email" placeholder="skrebkovm@internet.ru" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill-wave"></i> Способ оплаты</label>
+                        <div class="payment-methods">
+                            <label class="payment-method">
+                                <input type="radio" name="payment" value="yoomoney" checked>
+                                <img src="https://yoomoney.ru/i/shop/i/ym-logo.svg" style="height: 24px;" alt="ЮMoney">
+                                ЮMoney
+                            </label>
+                            <label class="payment-method">
+                                <input type="radio" name="payment" value="card">
+                                <i class="fas fa-credit-card"></i>
+                                Банковская карта
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="terms">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">Я согласен с правилами и подтверждаю правильность ника</label>
+                    </div>
+
+                    <button type="submit" class="btn-pay" id="payButton">
+                        <i class="fas fa-lock"></i> Перейти к оплате
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <h3><i class="fas fa-crown"></i> SonnyWorld</h3>
+                    <p>Лучший Minecraft сервер</p>
+                    <p>Версия: 1.16-1.20</p>
+                </div>
+                <div>
+                    <h3>Контакты</h3>
+                    <p><i class="fas fa-envelope"></i> skrebkovm@internet.ru</p>
+                    <p><i class="fas fa-globe"></i> Sonny_World.aternos.me</p>
+                </div>
+                <div>
+                    <h3>Помощь</h3>
+                    <p><a href="#" style="color: #aaa;">Как получить донат?</a></p>
+                    <p><a href="#" style="color: #aaa;">Правила сервера</a></p>
+                    <p><a href="#" style="color: #aaa;">Возврат средств</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно -->
+    <div class="modal" id="freeModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2><i class="fas fa-gift"></i> Получить D.Helper бесплатно</h2>
+            <p>Введите данные для получения привилегии:</p>
+            <form id="freeForm" onsubmit="return processFreeDonate(event)">
+                <div class="form-group">
+                    <label>Ваш ник в игре</label>
+                    <input type="text" id="freeNickname" placeholder="Например: veolte_ofical1" required>
+                </div>
+                <div class="form-group">
+                    <label>Ваш Email</label>
+                    <input type="email" id="freeEmail" placeholder="skrebkovm@internet.ru" required>
+                </div>
+                <button type="submit" class="btn-free">
+                    <i class="fas fa-download"></i> Получить бесплатно
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // КОНФИГУРАЦИЯ
+        const CONFIG = {
+            yoomoneyWallet: "4100119450984155",
+            adminEmail: "skrebkovm@internet.ru",
+            serverIP: "Sonny_World.aternos.me",
+            adminNick: "veolte_ofical1"
+        };
+
+        let selectedDonate = null;
+        let selectedPrice = 0;
+        let totalDonates = parseInt(localStorage.getItem('sonny_donates')) || 0;
+
+        // Загрузка страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+            document.getElementById('donateForm').addEventListener('submit', processPayment);
+        });
+
+        // Выбор доната
+        function selectDonate(name, price) {
+            selectedDonate = name;
+            selectedPrice = price;
+            
+            if (price === 0) {
+                showFreeModal();
+                return;
+            }
+            
+            document.getElementById('selectedDonateInfo').innerHTML = `
+                <h3>${name}</h3>
+                <p>Стоимость: <strong>${price} ₽</strong></p>
+                <p>После оплаты отправьте чек на ${CONFIG.adminEmail}</p>
+            `;
+            
+            document.getElementById('payButton').innerHTML = `<i class="fas fa-lock"></i> Оплатить ${price} ₽`;
+            document.getElementById('paymentForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Модальное окно
+        function showFreeModal() {
+            document.getElementById('freeModal').style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('freeModal').style.display = 'none';
+        }
+
+        // Бесплатный донат
+        function processFreeDonate(e) {
+            e.preventDefault();
+            
+            const nickname = document.getElementById('freeNickname').value;
+            const email = document.getElementById('freeEmail').value;
+            
+            Swal.fire({
+                title: 'Отправка заявки...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+            
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Заявка отправлена!',
+                    html: `✅ <b>${nickname}</b>, заявка на D.Helper принята!<br><br>
+                           Привилегия будет выдана администратором ${CONFIG.adminNick}<br>
+                           в течение 24 часов.`,
+                    confirmButtonText: 'ОК',
+                    confirmButtonColor: '#2A9D8F'
+                });
+                
+                closeModal();
+                document.getElementById('freeForm').reset();
+            }, 1500);
+        }
+
+        // Оплата
+        async function processPayment(e) {
+            e.preventDefault();
+            
+            const nickname = document.getElementById('nickname').value;
+            const email = document.getElementById('email').value;
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+            
+            if (!selectedDonate || selectedPrice === 0) {
+                Swal.fire('Выберите привилегию!', '', 'warning');
+                return;
+            }
+            
+            // Подтверждение
+            const confirm = await Swal.fire({
+                title: 'Подтверждение',
+                html: `<b>${selectedDonate}</b> для <b>${nickname}</b><br>
+                       <b>Сумма:</b> ${selectedPrice} ₽<br><br>
+                       После оплаты отправьте скриншот чека на:<br>
+                       <code>${CONFIG.adminEmail}</code>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Перейти к оплате',
+                cancelButtonText: 'Отмена',
+                confirmButtonColor: '#FF6B35'
+            });
+            
+            if (!confirm.isConfirmed) return;
+            
+            // ЮMoney оплата
+            if (paymentMethod === 'yoomoney') {
+                const orderId = 'SW' + Date.now();
+                const yoomoneyUrl = `https://yoomoney.ru/quickpay/confirm.xml?receiver=${CONFIG.yoomoneyWallet}&quickpay-form=shop&sum=${selectedPrice}&label=${orderId}&targets=Донат ${selectedDonate} для ${nickname}&successURL=${window.location.origin}&failURL=${window.location.origin}`;
+                
+                window.open(yoomoneyUrl, '_blank');
+                
+                Swal.fire({
+                    title: 'Оплата через ЮMoney',
+                    html: `Открылась новая вкладка для оплаты.<br><br>
+                           <b>После оплаты:</b><br>
+                           1. Сохраните скриншот чека<br>
+                           2. Отправьте на ${CONFIG.adminEmail}<br>
+                           3. Привилегия будет выдана вручную`,
+                    icon: 'info',
+                    confirmButtonText: 'Понятно'
+                });
+                
+            } else {
+                // Карта
+                Swal.fire({
+                    title: 'Оплата картой',
+                    html: `Для оплаты картой:<br><br>
+                           <b>Переведите ${selectedPrice} ₽</b> на карту:<br>
+                           <code>2200 1234 5678 9012</code><br><br>
+                           <b>В комментарии укажите:</b><br>
+                           <code>${nickname} - ${selectedDonate}</code><br><br>
+                           После оплаты отправьте скриншот на ${CONFIG.adminEmail}`,
+                    icon: 'info',
+                    confirmButtonText: 'Скопировать данные'
+                });
+            }
+            
+            // Сохраняем статистику
+            totalDonates++;
+            localStorage.setItem('sonny_donates', totalDonates);
+            updateStats();
+            
+            // Сбрасываем форму
+            document.getElementById('donateForm').reset();
+        }
+
+        // Статистика
+        function updateStats() {
+            document.getElementById('totalDonates').textContent = totalDonates;
+            
+            // Случайный онлайн (для демо)
+            const online = Math.floor(Math.random() * 30) + 120;
+            document.getElementById('onlineCount').textContent = online;
+        }
+
+        // Закрытие модалки по клику вне
+        window.onclick = function(e) {
+            if (e.target === document.getElementById('freeModal')) {
+                closeModal();
+            }
+        };
+    </script>
+</body>
+</html>
