@@ -22,6 +22,9 @@
         .btn { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: 600; }
         .btn-success { background: var(--green); }
         .btn-danger { background: var(--red); }
+        
+        .search-box { background: white; padding: 20px; border-radius: 10px; margin: 30px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .search-box input { padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; width: 300px; margin-right: 10px; }
     </style>
 </head>
 <body>
@@ -30,6 +33,15 @@
             <h1><i class="fas fa-shield-alt"></i> Админ панель SonnyWorld</h1>
             <p>Панель управления донатами</p>
             <a href="index.html" style="color: white; margin-top: 15px; display: inline-block;">← Вернуться на сайт</a>
+        </div>
+        
+        <div class="search-box">
+            <h3><i class="fas fa-search"></i> Найти заказ по ID</h3>
+            <input type="text" id="searchOrderId" placeholder="Введите ID заказа (SW...)">
+            <button class="btn" onclick="searchOrder()" style="background: var(--blue);">Найти</button>
+            <button class="btn" onclick="refreshOrders()" style="background: var(--green); margin-left: 10px;">
+                <i class="fas fa-sync-alt"></i> Обновить
+            </button>
         </div>
         
         <div class="stats">
@@ -46,8 +58,8 @@
                 <p>Ожидают выдачи</p>
             </div>
             <div class="stat-card">
-                <h2 id="freeOrders">0</h2>
-                <p>Бесплатные</p>
+                <h2 id="completedOrders">0</h2>
+                <p>Выдано</p>
             </div>
         </div>
         
@@ -61,11 +73,12 @@
                     <th>Сумма</th>
                     <th>Дата</th>
                     <th>Тип</th>
+                    <th>Статус</th>
                     <th>Действия</th>
                 </tr>
             </thead>
             <tbody id="ordersList">
-                <tr><td colspan="7" style="text-align: center; padding: 30px;">Заказов нет</td></tr>
+                <tr><td colspan="8" style="text-align: center; padding: 30px;">Загрузка заказов...</td></tr>
             </tbody>
         </table>
     </div>
@@ -80,49 +93,83 @@
         
         // Загрузка заказов
         function loadOrders() {
-            const orders = JSON.parse(localStorage.getItem('sonny_orders')) || [];
-            
-            // Статистика
-            document.getElementById('totalOrders').textContent = orders.length;
-            document.getElementById('pendingOrders').textContent = orders.filter(o => o.status === 'pending').length;
-            document.getElementById('freeOrders').textContent = orders.filter(o => o.isFree).length;
-            
-            const totalIncome = orders.filter(o => !o.isFree).reduce((sum, order) => sum + order.price, 0);
-            document.getElementById('totalIncome').textContent = totalIncome + ' ₽';
-            
-            // Таблица
-            const ordersList = document.getElementById('ordersList');
-            ordersList.innerHTML = '';
-            
-            const pendingOrders = orders.filter(o => o.status === 'pending').reverse();
-            
-            if (pendingOrders.length === 0) {
-                ordersList.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px;">Нет заказов ожидающих выдачи</td></tr>';
-                return;
-            }
-            
-            pendingOrders.forEach(order => {
-                const date = new Date(order.date).toLocaleString('ru-RU');
-                const row = document.createElement('tr');
+            try {
+                const orders = JSON.parse(localStorage.getItem('sonny_orders')) || [];
                 
-                row.innerHTML = `
-                    <td><code>${order.id}</code></td>
-                    <td><strong>${order.nickname}</strong></td>
-                    <td>${order.donate}</td>
-                    <td>${order.isFree ? '<span style="color: var(--green);">0 ₽ (бесплатно)</span>' : order.price + ' ₽'}</td>
-                    <td>${date}</td>
-                    <td>${order.isFree ? '🆓 Бесплатный' : '💰 Платный'}</td>
-                    <td>
-                        <button class="btn btn-success" onclick="completeOrder('${order.id}')" style="margin-right: 5px;">
-                            <i class="fas fa-check"></i> Выдать
-                        </button>
-                        <button class="btn btn-danger" onclick="deleteOrder('${order.id}')">
-                            <i class="fas fa-trash"></i> Удалить
-                        </button>
-                    </td>
-                `;
-                ordersList.appendChild(row);
-            });
+                // Статистика
+                document.getElementById('totalOrders').textContent = orders.length;
+                document.getElementById('pendingOrders').textContent = orders.filter(o => o.status === 'pending').length;
+                document.getElementById('completedOrders').textContent = orders.filter(o => o.status === 'completed').length;
+                
+                const paidOrders = orders.filter(o => !o.isFree && o.status === 'completed');
+                const totalIncome = paidOrders.reduce((sum, order) => sum + order.price, 0);
+                document.getElementById('totalIncome').textContent = totalIncome + ' ₽';
+                
+                // Таблица
+                const ordersList = document.getElementById('ordersList');
+                ordersList.innerHTML = '';
+                
+                // Сначала показываем ожидающие, потом завершенные
+                const pendingOrders = orders.filter(o => o.status === 'pending').reverse();
+                const completedOrders = orders.filter(o => o.status === 'completed').reverse();
+                
+                if (pendingOrders.length === 0 && completedOrders.length === 0) {
+                    ordersList.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px;">Заказов нет</td></tr>';
+                    return;
+                }
+                
+                // Ожидающие
+                pendingOrders.forEach(order => {
+                    addOrderRow(order, 'pending');
+                });
+                
+                // Завершенные
+                completedOrders.forEach(order => {
+                    addOrderRow(order, 'completed');
+                });
+                
+            } catch (error) {
+                console.error('Ошибка загрузки заказов:', error);
+                document.getElementById('ordersList').innerHTML = 
+                    '<tr><td colspan="8" style="text-align: center; padding: 30px; color: red;">Ошибка загрузки заказов</td></tr>';
+            }
+        }
+        
+        // Добавить строку в таблицу
+        function addOrderRow(order, status) {
+            const ordersList = document.getElementById('ordersList');
+            const date = new Date(order.date).toLocaleString('ru-RU');
+            const completedDate = order.completedAt ? new Date(order.completedAt).toLocaleString('ru-RU') : '-';
+            
+            const row = document.createElement('tr');
+            row.style.background = status === 'completed' ? '#f0fdf4' : 'white';
+            
+            row.innerHTML = `
+                <td><code>${order.id}</code></td>
+                <td><strong>${order.nickname}</strong><br><small>Подпись: ${order.signature}</small></td>
+                <td>${order.donate}</td>
+                <td>${order.isFree ? '<span style="color: var(--green);">0 ₽ (бесплатно)</span>' : order.price + ' ₽'}</td>
+                <td>${date}</td>
+                <td>${order.isFree ? '🆓 Бесплатный' : '💰 Платный'}</td>
+                <td>
+                    ${status === 'pending' 
+                        ? '<span style="color: #f59e0b; font-weight: bold;">⏳ Ожидает</span>' 
+                        : '<span style="color: var(--green); font-weight: bold;">✅ Выдан</span><br><small>' + completedDate + '</small>'}
+                </td>
+                <td>
+                    ${status === 'pending' 
+                        ? `<button class="btn btn-success" onclick="completeOrder('${order.id}')" style="margin-right: 5px;">
+                              <i class="fas fa-check"></i> Выдать
+                           </button>
+                           <button class="btn btn-danger" onclick="deleteOrder('${order.id}')">
+                              <i class="fas fa-trash"></i> Удалить
+                           </button>`
+                        : `<button class="btn" onclick="copyCommand('${order.nickname}', '${order.donate}')" style="background: var(--blue);">
+                              <i class="fas fa-copy"></i> Команда
+                           </button>`}
+                </td>
+            `;
+            ordersList.appendChild(row);
         }
         
         // Выдать привилегию
@@ -136,41 +183,121 @@
             }
             
             const order = orders[orderIndex];
+            
+            // Проверяем, оплачен ли заказ
+            if (!order.isFree) {
+                const checkPayment = confirm(`Заказ ${orderId} на сумму ${order.price} ₽\n\nВы уверены, что оплата прошла успешно?\nПроверьте в кошельке ЮMoney перед выдачей.`);
+                if (!checkPayment) return;
+            }
+            
             const groupName = order.donate.toLowerCase().replace('.', '').replace(' ', '_');
             const command = `/lp user ${order.nickname} parent add ${groupName}`;
             
-            if (confirm(`Выдать ${order.donate} игроку ${order.nickname}?\n\nКоманда:\n${command}`)) {
-                navigator.clipboard.writeText(command);
-                
-                orders[orderIndex].status = 'completed';
-                orders[orderIndex].completedAt = new Date().toISOString();
-                localStorage.setItem('sonny_orders', JSON.stringify(orders));
-                
-                alert("✅ Команда скопирована!\nВставьте в консоль сервера.");
-                loadOrders();
+            if (confirm(`Выдать ${order.donate} игроку ${order.nickname}?\n\nКоманда для выдачи:\n${command}`)) {
+                // Копируем команду
+                navigator.clipboard.writeText(command).then(() => {
+                    // Меняем статус
+                    orders[orderIndex].status = 'completed';
+                    orders[orderIndex].completedAt = new Date().toISOString();
+                    localStorage.setItem('sonny_orders', JSON.stringify(orders));
+                    
+                    alert("✅ Команда скопирована в буфер обмена!\n\nВставьте команду в консоль сервера для выдачи привилегии.");
+                    loadOrders();
+                    
+                    // Уведомление звуком
+                    try {
+                        new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3').play();
+                    } catch (e) {}
+                }).catch(err => {
+                    alert("Ошибка копирования команды: " + err);
+                });
             }
+        }
+        
+        // Копировать команду
+        function copyCommand(nickname, donate) {
+            const groupName = donate.toLowerCase().replace('.', '').replace(' ', '_');
+            const command = `/lp user ${nickname} parent add ${groupName}`;
+            
+            navigator.clipboard.writeText(command).then(() => {
+                alert("✅ Команда скопирована:\n" + command);
+            });
         }
         
         // Удалить заказ
         function deleteOrder(orderId) {
-            if (!confirm("Удалить заказ?")) return;
+            if (!confirm("Удалить этот заказ? Это действие нельзя отменить.")) return;
             
             const orders = JSON.parse(localStorage.getItem('sonny_orders')) || [];
             const filteredOrders = orders.filter(o => o.id !== orderId);
             localStorage.setItem('sonny_orders', JSON.stringify(filteredOrders));
             
             loadOrders();
+            alert("Заказ удален");
         }
         
-        // Обновление каждые 10 секунд
-        function updateOrders() {
+        // Найти заказ
+        function searchOrder() {
+            const orderId = document.getElementById('searchOrderId').value.trim();
+            if (!orderId) {
+                alert("Введите ID заказа!");
+                return;
+            }
+            
+            const orders = JSON.parse(localStorage.getItem('sonny_orders')) || [];
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order) {
+                alert("Заказ с таким ID не найден!");
+                return;
+            }
+            
+            const date = new Date(order.date).toLocaleString('ru-RU');
+            const completedDate = order.completedAt ? new Date(order.completedAt).toLocaleString('ru-RU') : 'Не выдано';
+            const status = order.status === 'completed' ? '✅ Выдан' : '⏳ Ожидает выдачи';
+            const type = order.isFree ? 'Бесплатный' : 'Платный';
+            
+            Swal.fire({
+                title: `Заказ ${orderId}`,
+                html: `
+                    <div style="text-align: left; padding: 10px;">
+                        <p><b>Игрок:</b> ${order.nickname}</p>
+                        <p><b>Привилегия:</b> ${order.donate}</p>
+                        <p><b>Сумма:</b> ${order.isFree ? '0 ₽ (бесплатно)' : order.price + ' ₽'}</p>
+                        <p><b>Тип:</b> ${type}</p>
+                        <p><b>Статус:</b> ${status}</p>
+                        <p><b>Дата заказа:</b> ${date}</p>
+                        <p><b>Дата выдачи:</b> ${completedDate}</p>
+                        <p><b>Подпись:</b> ${order.signature}</p>
+                        <hr>
+                        <p style="color: #6b7280; margin-top: 10px;">
+                            Команда для выдачи: /lp user ${order.nickname} parent add ${order.donate.toLowerCase().replace('.', '').replace(' ', '_')}
+                        </p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'Закрыть',
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+        
+        // Обновить список
+        function refreshOrders() {
             loadOrders();
-            setTimeout(updateOrders, 10000);
+            document.getElementById('searchOrderId').value = '';
         }
         
-        // Старт
-        loadOrders();
-        updateOrders();
+        // Автоматическое обновление каждые 30 секунд
+        function startAutoRefresh() {
+            loadOrders();
+            setTimeout(startAutoRefresh, 30000); // 30 секунд
+        }
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrders();
+            startAutoRefresh();
+        });
     </script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
