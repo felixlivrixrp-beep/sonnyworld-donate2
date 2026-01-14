@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SonnyWorld | Официальный донат</title>
+    <title>SonnyWorld | Донат через ЮMoney</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -20,8 +20,8 @@
         .logo span { background: linear-gradient(45deg, #FF6B35, #FF9E6D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .server-ip { background: rgba(255,107,53,0.2); padding: 10px 25px; border-radius: 25px; border: 1px solid var(--orange); font-family: monospace; font-weight: bold; font-size: 18px; }
         
-        /* Герой */
-        .hero { text-align: center; padding: 80px 0; background: linear-gradient(rgba(26,26,46,0.9), rgba(26,26,46,0.9)), url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=2000'); background-size: cover; }
+        /* Главная */
+        .hero { text-align: center; padding: 80px 0; }
         .hero h1 { font-size: 48px; margin-bottom: 20px; }
         .hero .subtitle { font-size: 20px; color: #aaa; max-width: 600px; margin: 0 auto 40px; }
         .stats { display: flex; justify-content: center; gap: 50px; margin-top: 50px; }
@@ -59,11 +59,8 @@
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; margin-bottom: 10px; color: #aaa; }
         .form-group input { width: 100%; padding: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: white; font-size: 16px; }
-        .payment-methods { display: flex; flex-direction: column; gap: 15px; margin: 20px 0; }
-        .payment-method { display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid rgba(255,255,255,0.2); border-radius: 10px; cursor: pointer; }
-        .payment-method:hover { border-color: var(--orange); }
-        .terms { display: flex; align-items: center; gap: 10px; margin: 25px 0; }
         .btn-pay { width: 100%; padding: 18px; background: linear-gradient(45deg, var(--green), #34c9a8); color: white; border: none; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; }
+        .terms { display: flex; align-items: center; gap: 10px; margin: 25px 0; }
         
         /* Футер */
         .footer { background: rgba(26,26,46,0.95); padding: 40px 0; margin-top: 60px; border-top: 3px solid var(--orange); }
@@ -82,11 +79,6 @@
     </style>
 </head>
 <body>
-    <!-- Уведомление -->
-    <div class="notification" id="notification" style="display: none; position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 15px 25px; border-radius: 10px; z-index: 1000;">
-        <i class="fas fa-check-circle"></i> <span>Донат успешно куплен!</span>
-    </div>
-
     <!-- Шапка -->
     <header class="header">
         <div class="container">
@@ -102,11 +94,11 @@
     <section class="hero">
         <div class="container">
             <h1>Донат для SonnyWorld</h1>
-            <p class="subtitle">Поддержи сервер и получи уникальные привилегии! Выдача вручную администратором.</p>
+            <p class="subtitle">Поддержи сервер и получи уникальные привилегии! Только оплата через ЮMoney</p>
             <div class="stats">
                 <div class="stat">
                     <i class="fas fa-users"></i>
-                    <span class="number" id="onlineCount">0</span>
+                    <span class="number" id="onlineCount">127</span>
                     <span class="label">онлайн</span>
                 </div>
                 <div class="stat">
@@ -139,7 +131,7 @@
                         <li><i class="fas fa-check"></i> Доступ к /hat</li>
                         <li><i class="fas fa-check"></i> 2 слота варпов</li>
                     </ul>
-                    <button class="btn btn-free" onclick="showFreeModal()">
+                    <button class="btn btn-free" onclick="selectDonate('D.Helper', 0)">
                         <i class="fas fa-gift"></i> Получить бесплатно
                     </button>
                 </div>
@@ -228,33 +220,17 @@
                 <form id="donateForm">
                     <div class="form-group">
                         <label><i class="fas fa-user"></i> Никнейм в игре</label>
-                        <input type="text" id="nickname" placeholder="Например: veolte_ofical1" required>
+                        <input type="text" id="nickname" placeholder="Введите ваш игровой ник" required>
                     </div>
 
                     <div class="form-group">
-                        <label><i class="fas fa-envelope"></i> Email для чека</label>
-                        <input type="email" id="email" placeholder="skrebkovm@internet.ru" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label><i class="fas fa-money-bill-wave"></i> Способ оплаты</label>
-                        <div class="payment-methods">
-                            <label class="payment-method">
-                                <input type="radio" name="payment" value="yoomoney" checked>
-                                <img src="https://yoomoney.ru/i/shop/i/ym-logo.svg" style="height: 24px;" alt="ЮMoney">
-                                ЮMoney
-                            </label>
-                            <label class="payment-method">
-                                <input type="radio" name="payment" value="card">
-                                <i class="fas fa-credit-card"></i>
-                                Банковская карта
-                            </label>
-                        </div>
+                        <label><i class="fas fa-wallet"></i> Кошелек ЮMoney для чека</label>
+                        <input type="text" id="yoomoneyWallet" placeholder="Номер вашего кошелька ЮMoney" required>
                     </div>
 
                     <div class="terms">
                         <input type="checkbox" id="terms" required>
-                        <label for="terms">Я согласен с правилами и подтверждаю правильность ника</label>
+                        <label for="terms">Я согласен с правилами сервера</label>
                     </div>
 
                     <button type="submit" class="btn-pay" id="payButton">
@@ -275,15 +251,15 @@
                     <p>Версия: 1.16-1.20</p>
                 </div>
                 <div>
-                    <h3>Контакты</h3>
-                    <p><i class="fas fa-envelope"></i> skrebkovm@internet.ru</p>
-                    <p><i class="fas fa-globe"></i> Sonny_World.aternos.me</p>
+                    <h3>Техподдержка</h3>
+                    <p>Вопросы по донату:</p>
+                    <p>Напишите в Discord сервер</p>
                 </div>
                 <div>
-                    <h3>Помощь</h3>
-                    <p><a href="#" style="color: #aaa;">Как получить донат?</a></p>
-                    <p><a href="#" style="color: #aaa;">Правила сервера</a></p>
-                    <p><a href="#" style="color: #aaa;">Возврат средств</a></p>
+                    <h3>Оплата</h3>
+                    <p>Только через ЮMoney</p>
+                    <p>Автовыдача: нет</p>
+                    <p>Выдача: вручную админом</p>
                 </div>
             </div>
         </div>
@@ -294,18 +270,13 @@
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
             <h2><i class="fas fa-gift"></i> Получить D.Helper бесплатно</h2>
-            <p>Введите данные для получения привилегии:</p>
+            <p>Введите ваш игровой ник:</p>
             <form id="freeForm" onsubmit="return processFreeDonate(event)">
                 <div class="form-group">
-                    <label>Ваш ник в игре</label>
-                    <input type="text" id="freeNickname" placeholder="Например: veolte_ofical1" required>
-                </div>
-                <div class="form-group">
-                    <label>Ваш Email</label>
-                    <input type="email" id="freeEmail" placeholder="skrebkovm@internet.ru" required>
+                    <input type="text" id="freeNickname" placeholder="Ваш ник в игре" required>
                 </div>
                 <button type="submit" class="btn-free">
-                    <i class="fas fa-download"></i> Получить бесплатно
+                    <i class="fas fa-download"></i> Отправить заявку
                 </button>
             </form>
         </div>
@@ -313,13 +284,7 @@
 
     <script>
         // КОНФИГУРАЦИЯ
-        const CONFIG = {
-            yoomoneyWallet: "4100119450984155",
-            adminEmail: "skrebkovm@internet.ru",
-            serverIP: "Sonny_World.aternos.me",
-            adminNick: "veolte_ofical1"
-        };
-
+        const YOOMONEY_WALLET = "4100119450984155"; // Твой кошелек ЮMoney
         let selectedDonate = null;
         let selectedPrice = 0;
         let totalDonates = parseInt(localStorage.getItem('sonny_donates')) || 0;
@@ -343,7 +308,7 @@
             document.getElementById('selectedDonateInfo').innerHTML = `
                 <h3>${name}</h3>
                 <p>Стоимость: <strong>${price} ₽</strong></p>
-                <p>После оплаты отправьте чек на ${CONFIG.adminEmail}</p>
+                <p>Оплата через ЮMoney → выдача вручную админом</p>
             `;
             
             document.getElementById('payButton').innerHTML = `<i class="fas fa-lock"></i> Оплатить ${price} ₽`;
@@ -364,107 +329,130 @@
             e.preventDefault();
             
             const nickname = document.getElementById('freeNickname').value;
-            const email = document.getElementById('freeEmail').value;
             
             Swal.fire({
-                title: 'Отправка заявки...',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
+                title: 'Заявка отправлена!',
+                html: `✅ <b>${nickname}</b>, заявка на D.Helper принята!<br><br>
+                       Привилегия будет выдана в течение 24 часов.`,
+                icon: 'success',
+                confirmButtonText: 'ОК',
+                confirmButtonColor: '#2A9D8F'
             });
             
-            setTimeout(() => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Заявка отправлена!',
-                    html: `✅ <b>${nickname}</b>, заявка на D.Helper принята!<br><br>
-                           Привилегия будет выдана администратором ${CONFIG.adminNick}<br>
-                           в течение 24 часов.`,
-                    confirmButtonText: 'ОК',
-                    confirmButtonColor: '#2A9D8F'
-                });
-                
-                closeModal();
-                document.getElementById('freeForm').reset();
-            }, 1500);
+            closeModal();
+            document.getElementById('freeForm').reset();
         }
 
-        // Оплата
-        async function processPayment(e) {
+        // Оплата через ЮMoney
+        function processPayment(e) {
             e.preventDefault();
             
             const nickname = document.getElementById('nickname').value;
-            const email = document.getElementById('email').value;
-            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+            const userWallet = document.getElementById('yoomoneyWallet').value;
             
             if (!selectedDonate || selectedPrice === 0) {
                 Swal.fire('Выберите привилегию!', '', 'warning');
                 return;
             }
             
-            // Подтверждение
-            const confirm = await Swal.fire({
-                title: 'Подтверждение',
-                html: `<b>${selectedDonate}</b> для <b>${nickname}</b><br>
-                       <b>Сумма:</b> ${selectedPrice} ₽<br><br>
-                       После оплаты отправьте скриншот чека на:<br>
-                       <code>${CONFIG.adminEmail}</code>`,
-                icon: 'question',
+            if (!nickname) {
+                Swal.fire('Введите ваш ник!', '', 'warning');
+                return;
+            }
+            
+            // Генерация ID заказа
+            const orderId = 'SW' + Date.now() + Math.random().toString(36).substr(2, 6).toUpperCase();
+            
+            // Ссылка на оплату ЮMoney
+            const yoomoneyUrl = `https://yoomoney.ru/quickpay/confirm.xml?receiver=${YOOMONEY_WALLET}&quickpay-form=shop&sum=${selectedPrice}&label=${orderId}&targets=Донат+${selectedDonate}+для+${nickname}&successURL=${window.location.origin}&failURL=${window.location.origin}`;
+            
+            // Сохраняем заказ
+            const order = {
+                id: orderId,
+                nickname: nickname,
+                donate: selectedDonate,
+                price: selectedPrice,
+                wallet: userWallet,
+                date: new Date().toISOString(),
+                status: 'pending'
+            };
+            
+            // Сохраняем в localStorage
+            const orders = JSON.parse(localStorage.getItem('sonny_orders')) || [];
+            orders.push(order);
+            localStorage.setItem('sonny_orders', JSON.stringify(orders));
+            
+            // Показываем инструкцию
+            Swal.fire({
+                title: 'Переход к оплате',
+                html: `
+                    <div style="text-align: left; padding: 10px;">
+                        <p><b>Привилегия:</b> ${selectedDonate}</p>
+                        <p><b>Игрок:</b> ${nickname}</p>
+                        <p><b>Сумма:</b> ${selectedPrice} ₽</p>
+                        <p><b>ID заказа:</b> ${orderId}</p>
+                        <hr>
+                        <p style="color: #FF6B35; font-weight: bold;">
+                            ⚠️ СОХРАНИТЕ ID ЗАКАЗА!
+                        </p>
+                        <p>После оплаты:</p>
+                        <ol style="text-align: left; padding-left: 20px;">
+                            <li>Сохраните скриншот чека</li>
+                            <li>Запомните ID заказа: <code>${orderId}</code></li>
+                            <li>Привилегия будет выдана вручную</li>
+                        </ol>
+                    </div>
+                `,
+                icon: 'info',
                 showCancelButton: true,
                 confirmButtonText: 'Перейти к оплате',
                 cancelButtonText: 'Отмена',
                 confirmButtonColor: '#FF6B35'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Открываем оплату в новом окне
+                    window.open(yoomoneyUrl, '_blank');
+                    
+                    // Показываем доп информацию
+                    setTimeout(() => {
+                        Swal.fire({
+                            title: 'Оплата открыта',
+                            html: `
+                                <p>Открылась новая вкладка с оплатой ЮMoney.</p>
+                                <p><b>Ваш ID заказа:</b> <code>${orderId}</code></p>
+                                <p style="color: #28a745;">
+                                    ✅ Сохраните этот номер!
+                                </p>
+                            `,
+                            icon: 'success',
+                            confirmButtonText: 'Понятно'
+                        });
+                    }, 1000);
+                }
             });
             
-            if (!confirm.isConfirmed) return;
-            
-            // ЮMoney оплата
-            if (paymentMethod === 'yoomoney') {
-                const orderId = 'SW' + Date.now();
-                const yoomoneyUrl = `https://yoomoney.ru/quickpay/confirm.xml?receiver=${CONFIG.yoomoneyWallet}&quickpay-form=shop&sum=${selectedPrice}&label=${orderId}&targets=Донат ${selectedDonate} для ${nickname}&successURL=${window.location.origin}&failURL=${window.location.origin}`;
-                
-                window.open(yoomoneyUrl, '_blank');
-                
-                Swal.fire({
-                    title: 'Оплата через ЮMoney',
-                    html: `Открылась новая вкладка для оплаты.<br><br>
-                           <b>После оплаты:</b><br>
-                           1. Сохраните скриншот чека<br>
-                           2. Отправьте на ${CONFIG.adminEmail}<br>
-                           3. Привилегия будет выдана вручную`,
-                    icon: 'info',
-                    confirmButtonText: 'Понятно'
-                });
-                
-            } else {
-                // Карта
-                Swal.fire({
-                    title: 'Оплата картой',
-                    html: `Для оплаты картой:<br><br>
-                           <b>Переведите ${selectedPrice} ₽</b> на карту:<br>
-                           <code>2200 1234 5678 9012</code><br><br>
-                           <b>В комментарии укажите:</b><br>
-                           <code>${nickname} - ${selectedDonate}</code><br><br>
-                           После оплаты отправьте скриншот на ${CONFIG.adminEmail}`,
-                    icon: 'info',
-                    confirmButtonText: 'Скопировать данные'
-                });
-            }
-            
-            // Сохраняем статистику
+            // Обновляем статистику
             totalDonates++;
             localStorage.setItem('sonny_donates', totalDonates);
             updateStats();
             
             // Сбрасываем форму
             document.getElementById('donateForm').reset();
+            selectedDonate = null;
+            selectedPrice = 0;
+            document.getElementById('selectedDonateInfo').innerHTML = `
+                <h3>Выберите привилегию</h3>
+                <p>Нажмите на кнопку "Купить" выше</p>
+            `;
+            document.getElementById('payButton').innerHTML = `<i class="fas fa-lock"></i> Перейти к оплате`;
         }
 
         // Статистика
         function updateStats() {
             document.getElementById('totalDonates').textContent = totalDonates;
             
-            // Случайный онлайн (для демо)
-            const online = Math.floor(Math.random() * 30) + 120;
+            // Обновляем онлайн каждые 30 секунд
+            const online = Math.floor(Math.random() * 20) + 120;
             document.getElementById('onlineCount').textContent = online;
         }
 
@@ -474,6 +462,15 @@
                 closeModal();
             }
         };
+
+        // Обновление онлайн каждые 30 сек
+        setInterval(() => {
+            const onlineElement = document.getElementById('onlineCount');
+            const current = parseInt(onlineElement.textContent);
+            const change = Math.floor(Math.random() * 5) - 2;
+            const newOnline = Math.max(100, Math.min(150, current + change));
+            onlineElement.textContent = newOnline;
+        }, 30000);
     </script>
 </body>
 </html>
